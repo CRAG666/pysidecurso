@@ -1,5 +1,5 @@
 import sys
-from PySide2.QtWidgets import QApplication, QDialog, QLineEdit
+from PySide2.QtWidgets import QApplication, QDialog, QLineEdit, QMessageBox
 from Ui_trabajadores import Ui_Dialog
 from metodos import Metodos
 
@@ -13,6 +13,7 @@ class trabajadores (QDialog):
         self.headerUsuarios = self.Mtos.generate_Header_labels('Usuarios')
         self.update_tb()
         self.ui.Btn_Guardar.clicked.connect(self.save)
+        self.ui.Btn_Eliminar.clicked.connect(self.delete)
 
     def update_tb(self):
         todos_registros = self.Mtos.run_query('select * from Usuarios')
@@ -34,6 +35,23 @@ class trabajadores (QDialog):
                 i.clear()
         else:
             print("No se ingresaron todos los datos")
+
+    def delete(self):
+        row, id = self.current_item()
+        if id:
+            res = QMessageBox.question(self, "Correcto", f'Elimina {id} ?')
+            if res == 16384:
+                self.ui.Tw_Registros.removeRow(row)
+                self.Mtos.delete_registry("Usuarios", (id,))
+        else:
+            QMessageBox.information(self, "No selección", "No selecciono Nada")
+
+    def current_item(self):
+        if self.ui.Tw_Registros.selectedItems():
+            row = self.ui.Tw_Registros.currentRow()
+            id = self.ui.Tw_Registros.item(row, 0).text()
+            return row, id
+        return -1, False
 
 
 if __name__ == "__main__":

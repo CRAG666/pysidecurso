@@ -42,3 +42,7 @@ class Metodos():
     def add_registry(self, tableName: str, values: tuple):
         count_values = ',?' * len(values)
         self.run_query(f'insert into {tableName} values(null{count_values})', values)
+
+    def delete_registry(self, tableName: str, values: tuple):
+        query = f'delete from {tableName} where id=?'
+        self.run_query(query, values)
