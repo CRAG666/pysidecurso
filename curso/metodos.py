@@ -21,7 +21,7 @@ class Metodos():
             conn.close()
 
     def print_in_TableWidget(self, tablewidget: object, headerlabels: list, result: list):
-        tablewidget.setColumnCount(len(result[0]))
+        tablewidget.setColumnCount(len(headerlabels))
         tablewidget.setRowCount(len(result))
         tablewidget.setHorizontalHeaderLabels(headerlabels)
         for row in range(len(result)):
@@ -45,4 +45,9 @@ class Metodos():
 
     def delete_registry(self, tableName: str, values: tuple):
         query = f'delete from {tableName} where id=?'
+        self.run_query(query, values)
+
+    def update_registry(self, tableName: str, id: int, values: tuple):
+        fields = "=?, ".join([i for i in self.generate_Header_labels(tableName) if i != 'ID'])
+        query = f'update {tableName} set {fields}=? where id={id}'
         self.run_query(query, values)
