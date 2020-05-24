@@ -22,13 +22,20 @@ class trabajadores (QDialog):
         self.ui.Btn_Editar.clicked.connect(self.edit)
         self.ui.Btn_Actualizar.setEnabled(False)
         self.ui.Btn_Actualizar.clicked.connect(lambda: self.save(True))
+        self.ui.Btn_Buscar.clicked.connect(lambda: self.update_tb(self.ui.Le_Buscar.text()))
 
-    def update_tb(self):
-        todos_registros = self.Mtos.run_query('select * from Usuarios')
+    def update_tb(self, searchkey=''):
+        query = 'select * from Usuarios'
+        if searchkey and searchkey != '*':
+            query = f"select * from Usuarios where \
+            ID like '{searchkey}' or \
+            Nombre like '{searchkey}%' or \
+            Apellidos like '{searchkey}%'"
+        resultado = self.Mtos.run_query(query)
         self.Mtos.print_in_TableWidget(
             self.ui.Tw_Registros,
             self.headerUsuarios,
-            todos_registros)
+            resultado)
 
     def save(self, update=False):
         values = [i.text() for i in self.data]
@@ -61,9 +68,9 @@ class trabajadores (QDialog):
         if id:
             res = QMessageBox.question(self, "Correcto", f'Editar {id} ?')
             if res == 16384:
-                for i in range(1, len(self.data) + 1):
-                    self.data[i - 1].setText(self.ui.Tw_Registros.item(row, i).text())
-                    self.current_id = id
+                for i, le in enumerate(self.data, start=1):
+                    le.setText(self.ui.Tw_Registros.item(row, i).text())
+                self.current_id = id
                 self.ui.Btn_Actualizar.setEnabled(True)
                 self.ui.Btn_Guardar.setEnabled(False)
                 self.ui.Tw_Registros.removeRow(row)
