@@ -2,6 +2,8 @@ import sys
 from PySide2.QtWidgets import QApplication, QDialog, QLineEdit, QMessageBox
 from Ui_trabajadores import Ui_Dialog
 from metodos import Metodos
+from PySide2.QtCore import QRegExp
+from PySide2.QtGui import QRegExpValidator, QValidator
 
 
 class trabajadores (QDialog):
@@ -23,6 +25,27 @@ class trabajadores (QDialog):
         self.ui.Btn_Actualizar.setEnabled(False)
         self.ui.Btn_Actualizar.clicked.connect(lambda: self.save(True))
         self.ui.Btn_Buscar.clicked.connect(lambda: self.update_tb(self.ui.Le_Buscar.text()))
+        only_text = QRegExpValidator(QRegExp('^[A-Za-z]{3,20}'))
+        self.ui.Le_Nombre.setValidator(only_text)
+        self.ui.Le_Apellidos.setValidator(only_text)
+        self.ui.Le_Rol.setValidator(only_text)
+        email = QRegExpValidator(QRegExp("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"))
+        self.ui.Le_Email.setValidator(email)
+        only_numbers = QRegExpValidator(QRegExp('^[0-9]{3,10}'))
+        self.ui.Le_Sueldo.setValidator(only_numbers)
+        for le in self.data:
+            le.textChanged.connect(self.check_changes)
+            le.textChanged.emit(le.text())
+
+    def check_changes(self,*args, **kwargs):
+        sender = self.sender()
+        validator = sender.validator()
+        state = validator.validate(sender.text(), 0)[0]
+        if state == QValidator.Acceptable:
+            color = '#59cf8f'
+        else:
+            color = '#fe3e23'
+        sender.setStyleSheet('QLineEdit{ background-color:'+color+'}')
 
     def update_tb(self, searchkey=''):
         query = 'select * from Usuarios'
